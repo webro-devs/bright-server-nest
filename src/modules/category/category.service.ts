@@ -1,0 +1,73 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateResult, DeleteResult } from 'typeorm';
+import { HttpException } from '../../infra/validation';
+import { Category } from './category.entity';
+import { CategoryRepository } from './category.repository';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+
+@Injectable()
+export class CategoryService {
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: CategoryRepository,
+  ) {}
+
+  async getAll(): Promise<Category[]> {
+    try {
+      const categories = await this.categoryRepository.find();
+      return categories;
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
+  async getById(id: string): Promise<Category> {
+    try {
+      const category = await this.categoryRepository.findOne({ where: { id } });
+      return category;
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
+  async create(values: CreateCategoryDto): Promise<Category> {
+    try {
+      const response = this.categoryRepository.create(values);
+      return this.categoryRepository.save(response);
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
+  async update(values: UpdateCategoryDto, id: string): Promise<UpdateResult> {
+    try {
+      const response = await this.categoryRepository.update(id, values);
+      return response;
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
+  async remove(id: string): Promise<DeleteResult> {
+    try {
+      const response = await this.categoryRepository.delete(id);
+      return response;
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
+  async getManyCategoriesById(ids: string[]): Promise<Category[]> {
+    try {
+      return ids?.length > 0
+        ? this.categoryRepository
+            .createQueryBuilder()
+            .where('id IN(:...ids)', { ids })
+            .getMany()
+        : [];
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+}
