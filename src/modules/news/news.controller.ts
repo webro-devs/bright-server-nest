@@ -30,15 +30,11 @@ import { PermissionEnum, State } from '../../infra/shared/enums';
 import { Public } from '../auth/decorators/public.decorator';
 import { PermissionsGuard } from '../auth/decorators/roles.decorator';
 import { NewsQueryDto } from '../../infra/shared/dto/news-query.dto';
-import { SearchService } from './elastic-search.service';
 
 @ApiTags('News')
 @Controller('news')
 export class NewsController {
-  constructor(
-    private readonly newsService: NewsService,
-    private readonly searchService: SearchService,
-  ) {}
+  constructor(private readonly newsService: NewsService) {}
 
   @PermissionsGuard(PermissionEnum['Добавить новости'])
   @Get('/')
@@ -53,21 +49,6 @@ export class NewsController {
         request.where,
         request['relations'],
       );
-      return news;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
-  }
-
-  @Get('/search')
-  @ApiOperation({ summary: 'Method: returns all news' })
-  @ApiOkResponse({
-    description: 'The news were returned successfully',
-  })
-  @HttpCode(HttpStatus.OK)
-  async getSearch(@Query('text') text: string) {
-    try {
-      const news = await this.searchService.search(text);
       return news;
     } catch (err) {
       throw new HttpException(true, 500, err.message);
@@ -123,7 +104,7 @@ export class NewsController {
   @HttpCode(HttpStatus.OK)
   async getByStatePublished(@Req() request) {
     try {
-      let where = request['where'];
+      const where = request['where'];
       where.state = State.published;
       const data = await this.newsService.getByStatePublished(
         where,
@@ -243,7 +224,6 @@ export class NewsController {
       }
 
       const news = await this.newsService.create(newsData, request.user.id);
-      await this.searchService.indexArticle(news);
       return news;
     } catch (err) {
       throw new HttpException(true, 500, err.message);

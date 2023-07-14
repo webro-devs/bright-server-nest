@@ -18,7 +18,6 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 
-import { HttpException } from '../../infra/validation';
 import { CreatePositionDto, UpdatePositionDto } from './dto';
 import { PositionService } from './position.service';
 
@@ -35,11 +34,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getById(@Param('id') id: string) {
-    try {
       return this.positionService.getById(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Get('/')
@@ -50,11 +45,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getData() {
-    try {
       return await this.positionService.getAll();
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Post('/')
@@ -65,11 +56,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() data: CreatePositionDto) {
-    try {
       return await this.positionService.create(data);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Put('/:id')
@@ -83,11 +70,7 @@ export class PositionController {
     @Body() userData: UpdatePositionDto,
     @Param('id') id: string,
   ): Promise<UpdateResult> {
-    try {
       return await this.positionService.update(userData, id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Delete('/:id')
@@ -98,10 +81,6 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string) {
-    try {
       return await this.positionService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 }

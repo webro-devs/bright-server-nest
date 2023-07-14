@@ -8,7 +8,6 @@ import {
   Patch,
   Param,
   Get,
-  Query,
   Put,
   Req,
 } from '@nestjs/common';
@@ -22,13 +21,11 @@ import {
 } from '@nestjs/swagger';
 
 import { CreateAdminDto, UpdateAdminDto, UpdateAdminProfileDto } from './dto';
-import { Admin } from './admin.entity';
 import { AdminService } from './admin.service';
 import { HttpException } from '../../infra/validation';
 import { fileService } from '../../infra/helpers';
 import { PermissionsGuard } from '../auth/decorators/roles.decorator';
 import { PermissionEnum } from '../../infra/shared/enums';
-import { Res } from '@nestjs/common/decorators';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -42,11 +39,7 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.OK)
   async getData() {
-    try {
-      return await this.adminService.getAll();
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.adminService.getAll();
   }
 
   @Get('/me')
@@ -56,12 +49,8 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.OK)
   async getMe(@Req() request) {
-    try {
-      const admin = await this.adminService.getOne(request.user.id);
-      return admin;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const admin = await this.adminService.getOne(request.user.id);
+    return admin;
   }
 
   @Get('/:id')
@@ -70,12 +59,8 @@ export class AdminController {
     description: 'The admin was returned successfully',
   })
   @HttpCode(HttpStatus.OK)
-  async getById(@Param('id') id: string, @Res() res) {
-    try {
-      return this.adminService.getById(id);
-    } catch (err) {
-      res.status(500).send(new HttpException(true, 500, err.message));
-    }
+  async getById(@Param('id') id: string) {
+    return this.adminService.getById(id);
   }
 
   @PermissionsGuard(PermissionEnum['Создать пользователя'])
@@ -87,21 +72,17 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.CREATED)
   async saveData(@Body() data: CreateAdminDto, @Req() request) {
-    try {
-      let avatar = { url: null, error: null };
+    let avatar = { url: null, error: null };
 
-      if (request?.files?.avatar) {
-        avatar = await fileService.uploadImage(request?.files?.avatar);
-        console.log(avatar);
+    if (request?.files?.avatar) {
+      avatar = await fileService.uploadImage(request?.files?.avatar);
+      console.log(avatar);
 
-        if (avatar.error) {
-          throw new HttpException(true, 500, 'Image upload error');
-        }
+      if (avatar.error) {
+        throw new HttpException(true, 500, 'Image upload error');
       }
-      return await this.adminService.create({ ...data, avatar: avatar.url });
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
     }
+    return await this.adminService.create({ ...data, avatar: avatar.url });
   }
 
   @Put('/:id')
@@ -116,21 +97,14 @@ export class AdminController {
     @Param('id') id: string,
     @Req() request,
   ) {
-    try {
-      let avatar = { url: null, error: null };
-      if (request?.files?.avatar) {
-        avatar = await fileService.uploadImage(request?.files?.avatar);
-        if (avatar.error) {
-          throw new HttpException(true, 500, 'Image upload error');
-        }
+    let avatar = { url: null, error: null };
+    if (request?.files?.avatar) {
+      avatar = await fileService.uploadImage(request?.files?.avatar);
+      if (avatar.error) {
+        throw new HttpException(true, 500, 'Image upload error');
       }
-      return await this.adminService.update(
-        { ...data, avatar: avatar.url },
-        id,
-      );
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
     }
+    return await this.adminService.update({ ...data, avatar: avatar.url }, id);
   }
 
   @Patch('/profile/my')
@@ -141,21 +115,17 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.OK)
   async changeProfile(@Body() data: UpdateAdminProfileDto, @Req() request) {
-    try {
-      let avatar = { url: null, error: null };
-      if (request?.files?.avatar) {
-        avatar = await fileService.uploadImage(request?.files?.avatar);
-        if (avatar.error) {
-          throw new HttpException(true, 500, 'Image upload error');
-        }
+    let avatar = { url: null, error: null };
+    if (request?.files?.avatar) {
+      avatar = await fileService.uploadImage(request?.files?.avatar);
+      if (avatar.error) {
+        throw new HttpException(true, 500, 'Image upload error');
       }
-      return await this.adminService.changeProfile(request.user.id, {
-        ...data,
-        avatar: avatar.url,
-      });
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
     }
+    return await this.adminService.changeProfile(request.user.id, {
+      ...data,
+      avatar: avatar.url,
+    });
   }
 
   @Patch('/active/:id')
@@ -165,11 +135,7 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.OK)
   async changeActive(@Body() { isActive }, @Param('id') id: string) {
-    try {
-      return await this.adminService.changeActive(id, isActive);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.adminService.changeActive(id, isActive);
   }
 
   @Delete('/:id')
@@ -179,10 +145,6 @@ export class AdminController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string): Promise<DeleteResult> {
-    try {
-      return await this.adminService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.adminService.remove(id);
   }
 }

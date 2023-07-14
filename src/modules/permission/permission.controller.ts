@@ -34,12 +34,8 @@ export class PermissionController {
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
-  async getById(@Param('id') id: string) {
-    try {
+  async getById(@Param('id') id: string) 
       return this.permissionService.getById(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Get('/')
@@ -50,11 +46,7 @@ export class PermissionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getData() {
-    try {
       return await this.permissionService.getAll();
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Post('/')
@@ -65,11 +57,7 @@ export class PermissionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() categoryData: CreatePermissionDto) {
-    try {
       return await this.permissionService.create(categoryData);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Put('/:id')
@@ -83,11 +71,7 @@ export class PermissionController {
     @Body() userData: UpUpdatePermissionDto,
     @Param('id') id: string,
   ): Promise<UpdateResult> {
-    try {
       return await this.permissionService.update(userData, id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 
   @Delete('/:id')
@@ -98,10 +82,6 @@ export class PermissionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string) {
-    try {
       return await this.permissionService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
   }
 }

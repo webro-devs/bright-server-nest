@@ -66,6 +66,6 @@ interface INews {
   mainCategory: ICategory;
 }
 
-interface INewsSearchBody extends INews {}
+type INewsSearchBody = INews;
 
 export default INewsSearchBody;

@@ -3,13 +3,13 @@ import { NewsLanguage } from './news-language.entity';
 import { CreateNewsLanguageDto, UpdateNewsLanguageDto } from './dto';
 import { HttpException } from '../../infra/validation';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NewsLanguageRepository } from './news-language.repository';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class NewsLanguageService {
   constructor(
     @InjectRepository(NewsLanguage)
-    private readonly languageRepository: NewsLanguageRepository,
+    private readonly languageRepository: Repository<NewsLanguage>,
   ) {}
 
   async getAll(): Promise<NewsLanguage[]> {

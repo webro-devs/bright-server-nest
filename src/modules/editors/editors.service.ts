@@ -3,7 +3,6 @@ import { NewsEditor } from './editors.entity';
 import { CreateEditorDto } from './dto';
 import { HttpException } from '../../infra/validation';
 import { IsSameDate } from '../../infra/helpers';
-import { NewsEditorRepository } from './editors.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 
@@ -11,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 export class NewsEditorService {
   constructor(
     @InjectRepository(NewsEditor)
-    private readonly newsEditorRepository: NewsEditorRepository,
+    private readonly newsEditorRepository: Repository<NewsEditor>,
   ) {}
 
   async getAll(): Promise<NewsEditor[]> {

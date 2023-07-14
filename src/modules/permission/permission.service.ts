@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateResult, DeleteResult } from 'typeorm';
+import { UpdateResult, DeleteResult, Repository } from 'typeorm';
 import { Permission } from './permission.entity';
 import { CreatePermissionDto, UpUpdatePermissionDto } from './dto';
 import { HttpException } from '../../infra/validation';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PermissionRepository } from './permission.repository';
 
 @Injectable()
 export class PermissionService {
   constructor(
     @InjectRepository(Permission)
-    private readonly permissionRepository: PermissionRepository,
+    private readonly permissionRepository: Repository<Permission>,
   ) {}
 
   async getAll(): Promise<Permission[]> {

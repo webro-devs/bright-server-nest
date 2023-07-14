@@ -10,7 +10,6 @@ import {
   Req,
   Patch,
 } from '@nestjs/common';
-import { UpdateResult } from 'typeorm';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -19,7 +18,6 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 
-import { HttpException } from '../../infra/validation';
 import {
   CreateNotificationDto,
   UpdateIsViewedNotificationDto,
@@ -40,11 +38,7 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getById(@Param('id') id: string) {
-    try {
-      return this.notificationService.getById(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return this.notificationService.getById(id);
   }
 
   @Get('/')
@@ -55,11 +49,7 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getData() {
-    try {
-      return await this.notificationService.getAll();
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.getAll();
   }
 
   @Get('/my-notifications')
@@ -70,11 +60,7 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getMyData(@Req() request) {
-    try {
-      return await this.notificationService.getMyNotifications(request.user.id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.getMyNotifications(request.user.id);
   }
 
   @Post('/')
@@ -85,11 +71,7 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() data: CreateNotificationDto, @Req() request) {
-    try {
-      return await this.notificationService.create(data, request.user.id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.create(data, request.user.id);
   }
 
   @Patch('/isViewed')
@@ -100,13 +82,7 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async changeData(@Body() data: UpdateIsViewedNotificationDto) {
-    try {
-      return await this.notificationService.updateIsViewed(
-        data.notificationIds,
-      );
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.updateIsViewed(data.notificationIds);
   }
 
   @Patch('/state')
@@ -117,14 +93,10 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async changeState(@Body() data: UpdateStateNotificationDto) {
-    try {
-      return await this.notificationService.updateState(
-        data.notificationIds,
-        data.state,
-      );
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.updateState(
+      data.notificationIds,
+      data.state,
+    );
   }
 
   @Delete('/:id')
@@ -135,10 +107,6 @@ export class NotificationController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string) {
-    try {
-      return await this.notificationService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.notificationService.remove(id);
   }
 }

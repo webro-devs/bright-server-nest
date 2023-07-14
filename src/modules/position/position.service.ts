@@ -4,13 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Position } from './position.entity';
 import { CreatePositionDto, UpdatePositionDto } from './dto';
 import { HttpException } from '../../infra/validation';
-import { PositionRepository } from './position.repository';
 
 @Injectable()
 export class PositionService {
   constructor(
     @InjectRepository(Position)
-    private readonly positionRepository: PositionRepository,
+    private readonly positionRepository: Repository<Position>,
   ) {}
 
   async getAll(): Promise<Position[]> {
