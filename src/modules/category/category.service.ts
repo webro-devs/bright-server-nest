@@ -4,6 +4,7 @@ import { UpdateResult, DeleteResult, Repository } from 'typeorm';
 import { HttpException } from '../../infra/validation';
 import { Category } from './category.entity';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import slugify from 'slugify';
 
 @Injectable()
 export class CategoryService {
@@ -21,6 +22,20 @@ export class CategoryService {
     }
   }
 
+  async getAllWithFiveNews(relations): Promise<Category[]> {
+    try {
+      const categories = await this.categoryRepository.find({
+        relations,
+      });
+      categories.forEach((category) => {
+        category.news = category.news.slice(0, 5);
+      });
+      return categories;
+    } catch (error) {
+      throw new HttpException(true, 500, error.message);
+    }
+  }
+
   async getById(id: string): Promise<Category> {
     try {
       const category = await this.categoryRepository.findOne({ where: { id } });
@@ -32,6 +47,18 @@ export class CategoryService {
 
   async create(values: CreateCategoryDto): Promise<Category> {
     try {
+      const langs = ['uz', 'ru', 'en', 'уз'];
+      for (let i = 0; i < langs.length; i++) {
+        values[langs[i] + 'Slag'] = slugify(values[langs[i]], {
+          replacement: '-',
+          remove: /[*+~.()'"!:@]/g,
+          lower: true,
+          strict: true,
+          locale: 'vi',
+          trim: true,
+        });
+      }
+
       const response = this.categoryRepository.create(values);
       return this.categoryRepository.save(response);
     } catch (error) {
@@ -41,6 +68,18 @@ export class CategoryService {
 
   async update(values: UpdateCategoryDto, id: string): Promise<UpdateResult> {
     try {
+      const langs = ['uz', 'ru', 'en', 'уз'];
+      for (let i = 0; i < langs.length; i++) {
+        values[langs[i] + 'Slag'] = slugify(values[langs[i]], {
+          replacement: '-',
+          remove: /[*+~.()'"!:@]/g,
+          lower: true,
+          strict: true,
+          locale: 'vi',
+          trim: true,
+        });
+      }
+
       const response = await this.categoryRepository.update(id, values);
       return response;
     } catch (error) {
@@ -68,5 +107,17 @@ export class CategoryService {
     } catch (error) {
       throw new HttpException(true, 500, error.message);
     }
+  }
+
+  async getCategoryByName(key: string, data: string): Promise<Category> {
+    const category = await this.categoryRepository.findOne({
+      where: { [key]: data },
+      relations: {
+        news: {
+          [key]: true,
+        },
+      },
+    });
+    return category;
   }
 }
