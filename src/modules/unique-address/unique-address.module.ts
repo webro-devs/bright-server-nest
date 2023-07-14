@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoryController } from './category.controller';
-import { Category } from './category.entity';
-import { CategoryService } from './category.service';
+import { CategoryController } from './unique-address.controller';
+import { Category } from './unique-address.entity';
+import { CategoryService } from './unique-address.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Category])],
