@@ -30,7 +30,7 @@ import { PermissionEnum, State } from '../../infra/shared/enums';
 import { Public } from '../auth/decorators/public.decorator';
 import { PermissionsGuard } from '../auth/decorators/roles.decorator';
 import { NewsQueryDto } from '../../infra/shared/dto/news-query.dto';
-import { SearchService } from './elastic-search.service';
+// import { SearchService } from './elastic-search.service';
 
 @ApiTags('News')
 @Controller('news')

@@ -9,6 +9,7 @@ import {
   Get,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { UpdateResult } from 'typeorm';
 import {
@@ -36,11 +37,7 @@ export class CategoryController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getById(@Param('id') id: string) {
-    try {
-      return this.categoryService.getById(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return this.categoryService.getById(id);
   }
 
   @Get('/')
@@ -51,11 +48,32 @@ export class CategoryController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getData() {
-    try {
-      return await this.categoryService.getAll();
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.categoryService.getAll();
+  }
+
+  @Get('/category/with-five')
+  @ApiOperation({ summary: 'Method: returns categories with 5 news' })
+  @ApiOkResponse({
+    description: 'The categories were returned successfully',
+  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @HttpCode(HttpStatus.OK)
+  async getFiveCategory(@Req() req) {
+    const relations = {
+      news: req['relations'],
+    };
+    return await this.categoryService.getAllWithFiveNews(relations);
+  }
+
+  @Get('/:key/:Category')
+  @ApiOperation({ summary: 'Method: returns category by key and name' })
+  @ApiOkResponse({
+    description: 'The categories were returned successfully',
+  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @HttpCode(HttpStatus.OK)
+  async getByName(@Param() { key, Category }) {
+    return await this.categoryService.getCategoryByName(key, Category);
   }
 
   @Post('/')
@@ -66,11 +84,7 @@ export class CategoryController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() categoryData: CreateCategoryDto) {
-    try {
-      return await this.categoryService.create(categoryData);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.categoryService.create(categoryData);
   }
 
   @Put('/:id')
@@ -84,11 +98,7 @@ export class CategoryController {
     @Body() userData: UpdateCategoryDto,
     @Param('id') id: string,
   ): Promise<UpdateResult> {
-    try {
-      return await this.categoryService.update(userData, id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.categoryService.update(userData, id);
   }
 
   @Delete('/:id')
@@ -99,10 +109,6 @@ export class CategoryController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string) {
-    try {
-      return await this.categoryService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    return await this.categoryService.remove(id);
   }
 }
