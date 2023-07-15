@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 class CreateLanguageDto {
   @IsNotEmpty()
@@ -15,11 +15,11 @@ class CreateLanguageDto {
 
   @IsNotEmpty()
   @IsString()
-  shortLink: string;
+  photoDesc: string;
 
   @IsNotEmpty()
   @IsString()
-  file: string;
+  shortLink: string;
 
   @IsNotEmpty()
   @IsArray()

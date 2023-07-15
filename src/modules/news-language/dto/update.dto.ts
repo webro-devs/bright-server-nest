@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsArray } from "class-validator";
+import { IsOptional, IsString, IsArray } from 'class-validator';
 
 class UpdateLanguageDto {
   @IsOptional()
@@ -15,11 +15,11 @@ class UpdateLanguageDto {
 
   @IsOptional()
   @IsString()
-  shortLink: string;
+  photoDesc: string;
 
   @IsOptional()
   @IsString()
-  file: string;
+  shortLink: string;
 
   @IsOptional()
   @IsArray()
