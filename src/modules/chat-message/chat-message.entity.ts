@@ -17,7 +17,7 @@ export class ChatMessage {
   @JoinColumn()
   user: Admin;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: () => 'CURRENT_TIMESTAMP' })
   date: string;
 
   @Column({ type: 'varchar' })

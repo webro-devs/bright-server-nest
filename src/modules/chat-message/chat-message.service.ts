@@ -3,51 +3,59 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateResult, DeleteResult, Repository } from 'typeorm';
 import { HttpException } from '../../infra/validation';
 import { ChatMessage } from './chat-message.entity';
-import { ChatMessageRepository } from './chat-message.repository';
 import { CreateMessageDto } from './dto';
 
 @Injectable()
 export class ChatMessageService {
   constructor(
     @InjectRepository(ChatMessage)
-    private readonly chatMessageRepository: ChatMessageRepository,
+    private readonly chatMessageRepository: Repository<ChatMessage>,
   ) {}
 
   async getAll(): Promise<ChatMessage[]> {
-    try {
-      const getAll = await this.chatMessageRepository.find({
-        relations: {
-          user: true,
-        },
-      });
-      return getAll;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const getAll = await this.chatMessageRepository.find({
+      relations: {
+        user: true,
+      },
+    });
+    return getAll;
   }
 
   async getById(id: string): Promise<ChatMessage> {
-    try {
-      const response = await this.chatMessageRepository.findOne({
-        where: { id },
-      });
-      return response;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const response = await this.chatMessageRepository.findOne({
+      where: { id },
+      relations: {
+        user: {
+          position: true,
+        },
+      },
+    });
+    return response;
   }
 
   async create(values: CreateMessageDto): Promise<ChatMessage> {
-    try {
-      const response = this.chatMessageRepository.create(values);
-      return await this.chatMessageRepository.save(response);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const response = await this.chatMessageRepository
+      .createQueryBuilder()
+      .insert()
+      .into(ChatMessage)
+      .values(values as unknown as ChatMessage)
+      .returning('id')
+      .execute();
+
+    return await this.getById(response.raw[0].id);
   }
 
-  async update(body: string, id: string): Promise<UpdateResult> {
-    try {
+  async update(
+    body: string,
+    id: string,
+    user_id: string,
+  ): Promise<UpdateResult> {
+    const msg = await this.chatMessageRepository.findOne({
+      relations: { user: true },
+      where: { id },
+    });
+
+    if (msg?.user?.id == user_id) {
       const edit = await this.chatMessageRepository
         .createQueryBuilder()
         .update()
@@ -55,17 +63,21 @@ export class ChatMessageService {
         .where('id = :id', { id })
         .execute();
       return edit;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
+    } else {
+      return { raw: 'asdasd', generatedMaps: [] };
     }
   }
 
-  async remove(id: string): Promise<DeleteResult> {
-    try {
+  async remove(id: string, user_id: string): Promise<DeleteResult> {
+    const msg = await this.chatMessageRepository.findOne({
+      relations: { user: true },
+      where: { id },
+    });
+    if (msg.user.id == user_id) {
       const response = await this.chatMessageRepository.delete(id);
       return response;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
+    } else {
+      return { raw: 'asdasd' };
     }
   }
 }

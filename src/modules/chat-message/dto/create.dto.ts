@@ -1,20 +1,30 @@
-import { IsNotEmpty, IsObject, IsOptional, IsString } from "class-validator";
-import { Admin } from "../../admin/admin.entity";
-import { Chat } from "../../chat/chat.entity";
+import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 class CreateMessageDto {
-  @IsOptional()
-  user: Admin;
-
+  @ApiProperty({
+    description: `user`,
+    example: 'uuid',
+  })
   @IsString()
-  date: string;
+  @IsOptional()
+  user: string;
 
+  @ApiProperty({
+    description: `Body`,
+    example: 'some text',
+  })
   @IsString()
   @IsNotEmpty()
   body: string;
 
-  @IsObject()
-  chat: Chat;
+  @ApiProperty({
+    description: `chat`,
+    example: 'uuid',
+  })
+  @IsString()
+  @IsOptional()
+  chat: string;
 }
 
 export default CreateMessageDto;

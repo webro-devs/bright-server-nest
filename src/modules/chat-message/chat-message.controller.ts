@@ -8,6 +8,7 @@ import {
   Param,
   Get,
   Put,
+  Req,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -56,6 +57,27 @@ export class ChatMessageController {
     }
   }
 
+  @Post('/:chatId')
+  @ApiOperation({ summary: 'Method: creates new chat message' })
+  @ApiCreatedResponse({
+    description: 'The chat message was created successfully',
+  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body() data: CreateMessageDto,
+    @Param('chatId') chatId: string,
+    @Req() req,
+  ) {
+    const response = await this.chatMessageService.create({
+      ...data,
+      chat: chatId,
+      user: req.user.id,
+    });
+
+    return response;
+  }
+
   @Post('/')
   @ApiOperation({ summary: 'Method: creates new chat message' })
   @ApiCreatedResponse({
@@ -63,12 +85,24 @@ export class ChatMessageController {
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() data: CreateMessageDto) {
-    try {
-      return await this.chatMessageService.create(data);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+  async createMessage(@Body() data: CreateMessageDto, @Req() req) {
+    const response = await this.chatMessageService.create({
+      ...data,
+      user: req.user.id,
+    });
+
+    return response;
+  }
+
+  @Put('/:id')
+  @ApiOperation({ summary: 'Method: updating message' })
+  @ApiOkResponse({
+    description: 'Chat message was changed',
+  })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @HttpCode(HttpStatus.OK)
+  async changeData(@Body() { body }, @Param('id') id: string, @Req() req) {
+    return await this.chatMessageService.update(body, id, req.user.id);
   }
 
   @Delete('/:id')
@@ -78,11 +112,7 @@ export class ChatMessageController {
   })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteData(@Param('id') id: string) {
-    try {
-      return await this.chatMessageService.remove(id);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+  async deleteData(@Param('id') id: string, @Req() req) {
+      return await this.chatMessageService.remove(id, req.user.id);
   }
 }
