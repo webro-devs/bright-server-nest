@@ -34,7 +34,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getById(@Param('id') id: string) {
-      return this.positionService.getById(id);
+    return this.positionService.getById(id);
   }
 
   @Get('/')
@@ -45,7 +45,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.OK)
   async getData() {
-      return await this.positionService.getAll();
+    return await this.positionService.getAll();
   }
 
   @Post('/')
@@ -56,7 +56,7 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() data: CreatePositionDto) {
-      return await this.positionService.create(data);
+    return await this.positionService.create(data);
   }
 
   @Put('/:id')
@@ -70,7 +70,7 @@ export class PositionController {
     @Body() userData: UpdatePositionDto,
     @Param('id') id: string,
   ): Promise<UpdateResult> {
-      return await this.positionService.update(userData, id);
+    return await this.positionService.update(userData, id);
   }
 
   @Delete('/:id')
@@ -81,6 +81,6 @@ export class PositionController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteData(@Param('id') id: string) {
-      return await this.positionService.remove(id);
+    return await this.positionService.remove(id);
   }
 }

@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoryController } from './unique-address.controller';
-import { Category } from './unique-address.entity';
-import { CategoryService } from './unique-address.service';
+import { UniqueAddress } from './unique-address.entity';
+import { UniqueAddressService } from './unique-address.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category])],
-  controllers: [CategoryController],
-  providers: [CategoryService],
-  exports: [CategoryService],
+  imports: [TypeOrmModule.forFeature([UniqueAddress])],
+  providers: [UniqueAddressService],
+  exports: [UniqueAddressService],
 })
 export class CategoryModule {}

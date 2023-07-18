@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UpdateResult, DeleteResult, Repository } from 'typeorm';
-import { HttpException } from '../../infra/validation';
-import { Category } from './unique-address.entity';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { DeleteResult, Repository } from 'typeorm';
+import { DataSource } from 'typeorm/data-source';
+import { UniqueAddress } from './unique-address.entity';
+import { CreateUniqueAddressDto } from './dto';
+import { GetAdvertisementDto } from '../adv/dto';
+import { EntityManager } from 'typeorm/entity-manager/EntityManager';
 
 @Injectable()
 export class UniqueAddressService {
@@ -13,58 +14,38 @@ export class UniqueAddressService {
   ) {}
 
   async getAll(): Promise<UniqueAddress[]> {
-    try {
-      const data = await this.uniqueAddressRepository.find();
-      return data;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const data = await this.uniqueAddressRepository.find();
+    return data;
   }
 
   async getById(id: string): Promise<UniqueAddress> {
-    try {
-      const data = await this.uniqueAddressRepository.findOne({
-        where: { id },
-        relations: {
-          advertisements: true,
-        },
-      });
-      return data;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const data = await this.uniqueAddressRepository.findOne({
+      where: { id },
+      relations: {
+        advertisements: true,
+      },
+    });
+    return data;
   }
 
   async getByIp(ipAddress: string): Promise<UniqueAddress> {
-    try {
-      const data = await this.uniqueAddressRepository.findOne({
-        where: { ipAddress },
-        relations: {
-          advertisements: true,
-        },
-      });
-      return data;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const data = await this.uniqueAddressRepository.findOne({
+      where: { ipAddress },
+      relations: {
+        advertisements: true,
+      },
+    });
+    return data;
   }
 
   async create(values: CreateUniqueAddressDto) {
-    try {
-      const response = this.uniqueAddressRepository.create(values);
-      return await this.uniqueAddressRepository.save(response);
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const response = this.uniqueAddressRepository.create(values);
+    return await this.uniqueAddressRepository.save(response);
   }
 
   async remove(id: string): Promise<DeleteResult> {
-    try {
-      const response = await this.uniqueAddressRepository.delete(id);
-      return response;
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
-    }
+    const response = await this.uniqueAddressRepository.delete(id);
+    return response;
   }
 
   async WorkingWithIpAddress(
@@ -72,33 +53,29 @@ export class UniqueAddressService {
       count: number;
     },
   ) {
-    try {
-      const data = await this.uniqueAddressRepository.findOne({
-        where: { ipAddress: value.ipAddress },
+    const data = await this.uniqueAddressRepository.findOne({
+      where: { ipAddress: value.ipAddress },
+    });
+    if (!data) {
+      const response = await this.create({
+        ipAddress: value.ipAddress,
       });
-      if (!data) {
-        const response = await this.create({
-          ipAddress: value.ipAddress,
-        });
-        response[value.type] = 1;
-        await this.connection.transaction(async (manager: EntityManager) => {
-          await manager.save(response).catch((err) => new Error(err));
-        });
-        return { data: response, index: 0 };
+      response[value.type] = 1;
+      await this.connection.transaction(async (manager: EntityManager) => {
+        await manager.save(response).catch((err) => new Error(err));
+      });
+      return { data: response, index: 0 };
+    } else {
+      const index = data[value.type] < value.count ? data[value.type] : 0;
+      if (data[value.type] < value.count) {
+        data[value.type] += 1;
       } else {
-        let index = data[value.type] < value.count ? data[value.type] : 0;
-        if (data[value.type] < value.count) {
-          data[value.type] += 1;
-        } else {
-          data[value.type] = 1;
-        }
-        await this.connection.transaction(async (manager: EntityManager) => {
-          await manager.save(data).catch((err) => new Error(err));
-        });
-        return { data, index };
+        data[value.type] = 1;
       }
-    } catch (err) {
-      throw new HttpException(true, 500, err.message);
+      await this.connection.transaction(async (manager: EntityManager) => {
+        await manager.save(data).catch((err) => new Error(err));
+      });
+      return { data, index };
     }
   }
 }

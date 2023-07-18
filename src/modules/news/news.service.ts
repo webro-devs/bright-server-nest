@@ -311,9 +311,9 @@ export class NewsService {
       const languages = ['ru', 'uz', 'en', 'уз'];
       for (let i = 0; i < ids.length; i++) {
         const news = await this.getById(ids[i]);
-        let publishDate = new Date(news.publishDate);
+        const publishDate = new Date(news.publishDate);
         let date = new Date();
-        let diffTime = publishDate.getTime() - date.getTime();
+        const diffTime = publishDate.getTime() - date.getTime();
         if (diffTime > 1000) {
           date = publishDate;
         } else {
@@ -321,7 +321,7 @@ export class NewsService {
         }
         for (const lang of languages) {
           if (lang == 'ru') {
-            if (news?.[lang] && news?.[lang]?.file && (tg || inst)) {
+            if (news?.[lang] && news?.[lang]?.['file'] && (tg || inst)) {
               const imgDir = await SocialMediaService(
                 news,
                 `news_${i + 1}`,
@@ -369,6 +369,59 @@ export class NewsService {
       return new HttpException(true, 203, 'successfully edited');
     } catch (err) {
       return new HttpException(true, 500, err.message);
+    }
+  }
+
+  async getzip(tg: boolean, inst: boolean, ids: string[]) {
+    deleteDirectory();
+    const languages = ['ru', 'uz', 'en', 'уз'];
+    for (let i = 0; i < ids.length; i++) {
+      const news = await this.getById(ids[i]);
+      for (const lang of languages) {
+        if (lang == 'uz' || lang == 'ru') {
+          if (news?.[lang] && news?.['file'] && (tg || inst)) {
+            await SocialMediaService(news, `news_${i + 1}`, lang, true);
+            if (inst) {
+              const descImgs = news[lang]?.descImg;
+              if (descImgs?.length > 0) {
+                for (let j = 0; j < descImgs?.length; j++) {
+                  const element = descImgs?.[j];
+                  await SocialMediaService(
+                    news,
+                    `news_${i + 1}`,
+                    lang,
+                    false,
+                    element,
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return;
+  }
+
+  async getLastNews(
+    relations,
+    where,
+    pagination: { limit: number; offset: number },
+  ): Promise<{ items: News[]; totalCount: number }> {
+    try {
+      const response = await this.newsRepository.find({
+        where,
+        relations,
+        order: {
+          updated_at: 'DESC',
+        },
+        take: pagination.limit,
+        skip: pagination.offset,
+      });
+      const count = await this.newsRepository.count({ where });
+      return { items: response, totalCount: count };
+    } catch (err) {
+      throw new HttpException(true, 500, err.message);
     }
   }
 }

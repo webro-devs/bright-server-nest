@@ -405,4 +405,45 @@ export class NewsController {
       throw new HttpException(true, 500, err.message);
     }
   }
+
+  @Post('/')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Method: creates new news' })
+  @ApiCreatedResponse({
+    description: 'The news was created successfully',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  async zipNews(@Body() datas, @Res() res: Response) {
+    const { newsIds } = datas;
+    await this.newsService.getzip(true, true, newsIds);
+    const { data }: { data: any | unknown } = await ZipMaker();
+    const fileName = 'instagram.zip';
+    const fileType = 'application/zip';
+
+    res.writeHead(200, {
+      'Content-Disposition': `attachment; filename="${fileName}`,
+      'Content-Type': fileType,
+    });
+
+    return data;
+  }
+
+  @Get('/last-news')
+  @ApiOperation({ summary: 'Method: returns general accessed news' })
+  @ApiOkResponse({
+    description: 'The general accessed news was returned successfully',
+  })
+  @HttpCode(HttpStatus.OK)
+  async getLastNews(@Req() req, @Res() res) {
+    const relations = req?.['relations'];
+    const where = req?.['where'];
+    const pagination = req?.['pagination'];
+    where.isLastNews = true;
+    const news = await this.newsService.getLastNews(
+      relations,
+      where,
+      pagination,
+    );
+    return news;
+  }
 }
