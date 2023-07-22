@@ -3,9 +3,7 @@ import * as request from 'request';
 
 @Injectable()
 export class CurrencyService {
-  constructor() {
-    // here code
-  }
+  constructor() {}
 
   async getCurrency() {
     await request(

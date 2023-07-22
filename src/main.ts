@@ -18,7 +18,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  app.use(fileUpload());
+  // app.use(fileUpload());
 
   app.useGlobalFilters(new ErrorFilter());
   app.useGlobalPipes(

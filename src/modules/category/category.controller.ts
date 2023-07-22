@@ -8,7 +8,6 @@ import {
   Param,
   Get,
   Put,
-  Query,
   Req,
 } from '@nestjs/common';
 import { UpdateResult } from 'typeorm';
